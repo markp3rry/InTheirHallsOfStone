@@ -1,0 +1,354 @@
+<canvas id="bottomLayer" width="640" height="480" style="z-index: 1; position:absolute; left:0px; top:0px;"></canvas>
+<canvas id="topLayer" width="640" height="480" style="z-index: 2; position:absolute; left:0px; top:0px;"></canvas>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+const FPS = 30;
+const interval = 1000;
+
+var solidRockImage = new Image();
+var earthImage = new Image();
+var dwarfImage = new Image();
+var emptyImage = new Image();
+solidRockImage.src = "solidrock.png";
+earthImage.src = "earth.png";
+dwarfImage.src = "dwarf.png";
+emptyImage.src = "empty.png";
+
+var canvas = null;
+var context2D = null;
+
+var startX = 0;
+var endX = 19;
+var startY = 0;
+var endY = 19;
+var count = 0;
+
+var bottomLayerSlots = new Array();
+var slots = new Array();
+var sprites = new Array();
+
+
+for (var y = startY; y < endY; y++){
+	for (var x = startX; x < endX; x++){
+		bottomLayerSlots.push({
+			x: x * 8,
+			y: y * 8,
+			actor: "solidrock"
+		})
+		// bottomLayerSlots.push({x: x * 8, 
+		// 						y: y * 8, 
+		// 						image: emptyImage, 
+		// 						actor: "floor", 
+		// 						idx: count, 
+		// 						trigger: 0, 
+		// 						zIdx: 0,
+		// 						isMoving: 8,
+		// 						isFacing: "north",
+		// 						decisionArray: new Array(),
+		// 						score: 0
+		// 					});
+		// if ((x == startX || y == startY) || (x == endX - 1 || y == endY - 1)){
+		// 	slots.push({x: x * 8, 
+		// 				y: y * 8, 
+		// 				//image: solidRockImage, 
+		// 				actor: "solidrock", 
+		// 				idx: count, 
+		// 				trigger: 0, 
+		// 				zIdx: 0,
+		// 				isMoving: 8,
+		// 				isFacing: "north",
+		// 				decisionArray: new Array(),
+		// 				score: 0});		
+		// }
+		// else{
+		// 	slots.push({x: x * 8, 
+		// 				y: y * 8, 
+		// 				//image: earthImage, 
+		// 				actor: "earth", 
+		// 				idx: count, 
+		// 				trigger: 0, 
+		// 				zIdx: 0,
+		// 				isMoving: 8,
+		// 				isFacing: "north",
+		// 				decisionArray: new Array(),
+		// 				score: 1})
+		// }
+		// count++;
+	}
+}
+//var slot = slots[24];
+//slot.image = dwarfImage;
+//slot.actor = "dwarf";
+//slot.zIdx = 1;
+//console.log(slots[24]);
+
+
+sprites.push({
+	x: 0,
+	y: 0,
+	actor: "dwarf",
+	trigger: 0,
+	moveX: 0,
+	moveY: 0
+});
+
+sprites.push({
+	x: 16,
+	y: 0,
+	actor: "earth",
+	trigger: 0,
+	moveX: 0,
+	moveY: 0
+})
+
+window.onload = init;
+
+function init()
+{
+ bottomLayer = document.getElementById('bottomLayer');
+ bottomLayerContext2D = bottomLayer.getContext('2d');
+ topLayer = document.getElementById('topLayer');
+ topLayerContext2D = topLayer.getContext('2d');
+ setInterval(runGameLoop, interval / FPS);
+}
+
+function runGameLoop()
+{
+ handleInput();
+ update();
+ draw();
+}
+
+function handleInput()
+{
+ 
+}
+
+function update()
+{
+
+var newSprites = [];
+var spr = sprites[0];
+spr.trigger += interval;
+if (spr.trigger == 50000)
+	spr.moveX += 8;
+if (spr.trigger == 100000){
+	for (var i = 0; i < sprites.length; i++){
+		if (sprites[i].x != spr.x + 8){
+			newSprites.push(sprites[i]);	
+		}
+	}
+	sprites = newSprites;
+}
+if (spr.trigger == 150000)
+	spr.moveX += 8;
+
+	
+// var dwarf = slots[24];
+// dwarf.trigger += interval;
+// if (dwarf.trigger == 50000){
+// 	slots[25].actor = "empty";
+	
+// }
+// else if (dwarf.trigger == 100000){
+// 	//slots[25].actor = "dwarf";
+// 	slots[24].isMoving = 0;
+// 	//dwarf.trigger = 0;
+// }
+// else if (dwarf.trigger == 150000){
+// 	//slots[24].actor = "empty";
+// }
+
+ // $.each(slots, function(i, item){
+	// 	if (item.actor == "dwarf"){
+	// 		item.trigger += interval;
+	// 		if (item.trigger >= 50000){
+	// 			console.log(slots[26]);
+	// 			//decide what to do
+	// 			//if there are still decisions to be made, make the next decision
+	// 			if (item.decisionArray.length < 4){
+	// 				if (item.isFacing == "north"){
+	// 					//console.log("Checking what's north of my position");
+	// 					var slot = slots[item.idx - endX];
+	// 					item.decisionArray.push({direction: "north", val: slot.score});	
+	// 					item.isFacing = "east";
+	// 				}
+	// 				else if (item.isFacing == "east"){
+	// 					//console.log("Checking what's east of my position");
+	// 					var slot = slots[item.idx + 1];
+	// 					item.decisionArray.push({direction: "east", val: slot.score});	
+	// 					item.isFacing = "south";
+	// 				}
+	// 				else if (item.isFacing == "south"){
+	// 					//console.log("Checking what's south of my position");
+	// 					var slot = slots[item.idx + endX];
+	// 					item.decisionArray.push({direction: "south", val: slot.score});	
+	// 					item.isFacing = "west";
+	// 				}
+	// 				else if (item.isFacing == "west"){
+	// 					//console.log("Checking what's west of my position");
+	// 					var slot = slots[item.idx - 1];
+	// 					item.decisionArray.push({direction: "west", val: slot.score});	
+	// 					item.isFacing = "north";
+	// 				}
+	// 			}
+	// 			else{
+	// 				//sort the decision array by the scores of the different decisions
+	// 				item.decisionArray.sort(compareDecision);
+	// 				//take the highest scoring decision
+	// 				item.isFacing = item.decisionArray[0].direction;
+	// 				if (item.isFacing == "east"){
+	// 					//console.log("Current slot is " + slots[item.idx].idx);
+	// 					//console.log("Slot to the east " + slots[item.idx + 1].idx);
+	// 					//var currentSlot = slots[item.idx];
+	// 					//var futureSlot = slots[item.idx + 1];
+	// 					//console.log(futureSlot.idx);
+	// 					if (slots[item.idx + 1].score == 1){
+	// 					 	console.log("There's some earth - digging");
+	// 					 	//futureSlot.actor = "empty";
+	// 					 	slots[item.idx + 1].actor = "empty";
+	// 					 	slots[item.idx + 1].score = 2;
+	// 					  	//slotsToRemove.push({idx: futureSlot.idx});
+	// 					}
+	// 					else if (slots[item.idx + 1].score == 2){
+	// 						console.log("There's some empty space - moving");
+	// 						//item.isMoving = 0;
+	// 						slots[item.idx].actor = "empty";
+	// 						slots[item.idx].score = 2;
+	// 						slots[item.idx + 1].actor = "dwarf";
+	// 						slots[item.idx + 1].score = 0;
+	// 					}
+	// 					// var slot = slots[item.idx];
+	// 					// if (slot.score == 2){
+	// 					// 	console.log("There's an empty space - moving into it");
+	// 					// 	slot.image = emptyImage;
+	// 					// 	slot.actor = "empty";
+	// 					// 	slot.zIdx = 0;
+	// 					// 	slot.score = 0;
+	// 					// 	item.isMoving = 0;
+	// 					// }
+	// 					// else if (slot.score == 1){
+	// 					// 	
+	// 					// }
+	// 				}
+	// 				item.decisionArray = [];
+	// 			}
+	// 			item.trigger = 0;
+
+	// 		}
+	// 	}
+	// });
+	//$.each(slotsToRemove, function(i, item){
+	//	slots.splice(item.idx, 1);
+	//});
+	//slotsToRemove = [];
+	
+}
+
+function checkNorth(modifier){
+	return 1 + modifier;
+}
+function checkEast(modifier){
+	return 1 + modifier;
+}
+function checkWest(modifier){
+	return 1 + modifier;
+}
+function checkSouth(modifier){
+	return 1 + modifier;
+}
+
+function draw()
+{
+	bottomLayerContext2D.clearRect(0,0,bottomLayer.width, bottomLayer.height);
+	topLayerContext2D.clearRect(0,0,topLayer.width, topLayer.height);
+
+	//context2D.clearRect(0, 0, canvas.width, canvas.height);
+	//sort slots by zIndex of contents and draw the things that move last
+	//slots.sort(compareZ);
+	$.each(bottomLayerSlots, function(i, item){
+		if (item.actor == "solidrock")
+			bottomLayerContext2D.drawImage(solidRockImage, item.x, item.y);
+	});
+	$.each(sprites, function(i, item){
+		if (item.actor == "dwarf"){
+			if (item.moveX > item.x) {
+				item.x += 1;
+			}
+			if (item.moveY > item.y){
+				item.y += 1;
+			}
+			topLayerContext2D.drawImage(dwarfImage, item.x, item.y);	
+		}
+		else if (item.actor == "earth"){
+			topLayerContext2D.drawImage(earthImage, item.x, item.y);		
+		}
+	});
+	//$.each(slots, function(i, item){
+		//makes the sprite "slide" rather than move in blocks
+		// if (item.actor != "dwarf"){
+			
+		// }
+		// else{
+		
+		// }
+		 // if (item.actor != "empty"){
+		 // 	if (item.actor == "solidrock"){
+		 // 		//topLayerContext2D.drawImage(solidRockImage, item.x, item.y);		
+		 // 	}
+		 // 	else if (item.actor == "earth"){
+		 // 		//topLayerContext2D.drawImage(earthImage, item.x, item.y);			
+		 // 	}
+		 // 	else if (item.actor == "dwarf"){
+		 // 			var x = item.x;
+		 // 			var y = item.y;
+			// 	 	if (item.isMoving < 8){
+			// 	 		x += 1;
+			// 	 		item.isMoving +=1;
+			// 	 		if (item.isMoving == 7){
+			// 	 			//item.actor = "empty";
+			// 	 		}
+			// 		} 		
+		 		//topLayerContext2D.drawImage(dwarfImage, x, y);		
+		 	//}
+		 		//if (item.actor == "dwarf"){
+		 			//if (item.isMoving < 8) {
+		 			//	item.x += 1;
+		 			//	item.isMoving +=1;
+		 				//if (item.isMoving == 7)
+		 				//	item.actor = "dwarf";
+		 				//	item.image = dwarfImage;	
+		 			//}
+		 		//}
+			
+		//}
+	//slots.sort(compareZ);
+	//slots.sort(compareAscending);
+ 
+	//}); 
+}
+function compareZ(a,b){
+	if (a.zIdx < b.zIdx)
+		return -1;
+	if (a.zIdx > b.zIdx)
+		return 1;
+	return 0;
+}
+function compareAscending(a,b){
+if (a.idx < b.idx)
+		return -1;
+	if (a.idx > b.idx)
+		return 1;
+	return 0;	
+}
+function compareDecision(a,b){
+	if (a.val > b.val)
+		return -1;
+	if (a.val < b.val)
+		return 1;
+	return 0;	
+}
+
+</script>
+
